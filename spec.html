@@ -9,8 +9,7 @@
       var respecConfig = {
           specStatus: "CG-DRAFT",
           shortName: "scrollAnchoring",
-          edDraftURI: "https://cdn.rawgit.com/ymalik/interventions/master/scroll-anchoring/spec.html",
-          testSuiteURI: "TODO",
+          edDraftURI: "https://cdn.rawgit.com/skobes/ScrollAnchoring/master/spec.html",
           editors: [
                 {   name:       "Steve Kobes",
                     url:        "",
@@ -26,10 +25,10 @@
             data: [
                 {
                     value: 'GitHub repository',
-                    href: 'https://github.com/WICG/interventions/tree/master/scroll-anchoring'
+                    href: 'https://github.com/skobes/ScrollAnchoring'
                 }, {
                     value: 'Feedback / discussion in the WICG',
-                    href: 'https://github.com/WICG/interventions/issues/2'
+                    href: 'https://discourse.wicg.io/t/proposal-scroll-anchoring/1752'
                 }
              ]
           }],
@@ -87,6 +86,9 @@
           "Read More" link).
         </p>
         <p>
+          The anchor node may be either a text node or an element.
+        </p>
+        <p>
           The <dfn id="anchoring-algorithm">algorithm to select an anchor node for a scrollable area </dfn>(either a
           document or an element with scrollable overflow) is as follows:
           <ol>
@@ -122,6 +124,11 @@
               </ol>
             </li>
           </ol>
+        </p>
+        <p>
+          Conceptually, a new anchor node is computed for every scrollable area whenever the scroll position of
+          any scrollable area changes. (As a performance optimization, the implementation may wait until the
+          anchor node is needed before computing it.)
         </p>
         <p>
           The <dfn id="viewport"> viewport</dfn> is the visible region of the <a href="https://drafts.csswg.org/cssom-view/#scrolling-box">scrollable area</a>.
@@ -163,50 +170,70 @@
         <h3>Scroll Adjustment</h3>
         <p>
           If an anchor node was selected, then when the anchor node moves,
-          the browser computes its previous location L0 and
-          its new location L1 in the coordinate space of the scrolling content. It then
-          reads the current scroll position S0 and computes a new scroll position S1:
+          the browser computes its previous offset <code>y0</code> and
+          its new offset <code>y1</code> from the top of the scrolling content in the
+          <a href="https://www.w3.org/TR/css-writing-modes-3/#block-flow-direction">block
+          flow direction</a>. It then queues an adjustment to the scroll position
+          of <code>y1 - y0</code>, in the block flow direction, to be performed at the end of the
+          <a>suppression window</a>.
+        </p>
+        <h4>Suppression Window</h4>
+        <p>
+          Every movement of an anchor node occurs within a window of time called the
+          <dfn id="suppression-window">suppression window</dfn>, defined as follows:
+          <ul>
+            <li>The suppression window begins at the start of the current iteration of the
+            <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#processing-model-8">HTML Processing Model</a> event loop, or at the end of the most recently completed suppression window,
+            whichever is more recent.</li>
+            <li>The suppression window ends at the end of the current iteration of the
+            <a data-link-type="dfn" href="https://html.spec.whatwg.org/multipage/webappapis.html#processing-model-8">HTML Processing Model</a> event loop,
+            or immediately before the next operation whose result or side effects
+            would differ as a result of a change in the scroll position (for example,
+            an invocation of
+            <a href="https://www.w3.org/TR/cssom-view-1/#dom-element-getboundingclientrect">getBoundingClientRect</a>), whichever comes sooner.
+            </li>
+          </ul>
+          More than one anchor node movement may occur within the same suppression window.
         </p>
         <p>
-          <pre>S1 = S0 + (L1 - L0)</pre>
+          At the end of a suppression window, the user agent performs all scroll
+          adjustments that were queued during the window and not suppressed by any
+          <a>suppression trigger</a> during the window.
         </p>
+        <h4>Suppression Triggers</h4>
         <p>
-          By setting the scroll position to S1 at the same time that the anchor node moves
-          to L1, the location of the anchor node relative to the viewport is preserved, and
-          no "jump" is visible.
-        </p>
-        <p>
-          The anchor node may be either a text node or an element.
-        </p>
-        <p>
-          Conceptually, a new anchor node is computed whenever the scroll position
-          changes. (As a performance optimization, the implementation may wait until the
-          anchor node is needed before computing it.)
-        </p>
-        <div class="note">
-          In some cases, a scroll anchoring adjustment is suppressed, even though
-          the anchor node has moved. These are:
+          A <dfn id="suppression-trigger">suppression trigger</dfn> is an operation that
+          suppresses the scroll anchoring adjustment for an anchor node movement, if it
+          occurs within the suppression window for that movement. These triggers are:
           <ul>
             <li>
-              When the DOM changes that caused the adjustment include any change to the
-              computed value of a property affecting the position of elements, on any
+              Any change to the computed value of any of the following properties, on any
               element in the path from the anchor node to the scrollable element (or
-              document), inclusive of both.
-              <p class="issue">
-                Need a clearer specification of which properties trigger this condition.
-              </p>
+              document), inclusive of both:
+              <ul>
+                <li><a href="https://drafts.csswg.org/css21/visuren.html#position-props">box offset properties</a></li>
+                <li><a href="https://drafts.csswg.org/css21/box.html#margin-properties">margin properties</a></li>
+                <li><a href="https://drafts.csswg.org/css21/box.html#padding-properties">padding properties</a></li>
+                <li><a href="https://drafts.csswg.org/css21/visudet.html#propdef-width">width</a>,
+                  <a href="https://drafts.csswg.org/css21/visudet.html#propdef-height">height</a>,
+                  <a href="https://drafts.csswg.org/css21/visudet.html#min-max-widths">min-width and max-width</a>,
+                  <a href="https://drafts.csswg.org/css21/visudet.html#min-max-heights">min-height and max-height</a></li>
+                <li><a href="https://drafts.csswg.org/css-position-3/#propdef-position">position</a></li>
+                <li><a href="https://drafts.csswg.org/css-transforms-1/#propdef-transform">transform</a></li>
+              </ul>
             </li>
             <li>
-              When the DOM changes that caused the adjustment include a change to the
-              computed value of the
+              Any change to the computed value of the
               <a href="https://drafts.csswg.org/css-position-3/#propdef-position">position</a>
               property on any element within the scrollable element (or document), such that
               the element acquires or ceases to have an out-of-flow position
               (<a href="https://drafts.csswg.org/css-position-3/#fixed-pos">fixed</a> or
               <a href="https://drafts.csswg.org/css-position-3/#abs-pos">absolute</a>).
+              Note that this trigger applies regardless of whether the modified element is
+              on the path from the anchor node to the scrollable element.
             </li>
           </ul>
-        </div>
+        </p>
       </section>
     </section>
     <section>
@@ -241,7 +268,7 @@
       </ul>
       <p class="issue">
         The pairing of <code>visible</code> with <code>none</code> is awkward.
-        We should come up with better names for these values.
+        There may be better names for these values.
       </p>
       <div class="note">
         The <code>overflow-anchor</code> property is also proposed (with different values) for
