@@ -152,28 +152,37 @@
           </ul>
         </p>
         <p>
-          A DOM element E is <dfn id="fully-visible">fully visible </dfn> if it is entirely
+          A DOM element E is <dfn id="fully-visible">fully visible</dfn> if its
+          <a>scroll anchoring bounding rect</a> is entirely
           within the <a id="ref-for-viewport-2">viewport</a>.
         </p>
         <p>
-          A DOM element E is <dfn id="fully-clipped">fully clipped </dfn> if it is entirely
+          A DOM element E is <dfn id="fully-clipped">fully clipped</dfn> if its
+          <a>scroll anchoring bounding rect</a> is entirely
           outside the <a id="ref-for-viewport-3">viewport</a>.
         </p>
         <p>
-          A DOM element E is <dfn id="partially-visible">partially visible </dfn> if it is
-          not <a id="ref-for-fully-visible-2">fully visible</a> and not
-          <a id="ref-for-fully-clipped-2"> fully clipped </a>
+          A DOM element E is <dfn id="partially-visible">partially visible </dfn> if it
+          is neither fully visible nor fully clipped.
         </p>
         <p>
+          The <dfn id="scroll-anchoring-bounding-rect">scroll anchoring bounding rect</dfn> of an element
+          E is the axis-aligned bounding rect of the element's border box and its
+          <a href="https://www.w3.org/TR/css-overflow-3/#ink-overflow-rectangle">ink overflow rectangle</a>.
+        </p>
       </section>
       <section>
         <h3>Scroll Adjustment</h3>
         <p>
           If an anchor node was selected, then when the anchor node moves,
-          the browser computes its previous offset <code>y0</code> and
-          its new offset <code>y1</code> from the top of the scrolling content in the
-          <a href="https://www.w3.org/TR/css-writing-modes-3/#block-flow-direction">block
-          flow direction</a>. It then queues an adjustment to the scroll position
+          the browser computes the previous offset <code>y0</code>, and the current offset <code>y1</code>,
+          of the block start edge of the anchor node's <a>scroll anchoring bounding rect</a>,
+          relative to the block start edge of the scrolling content in the
+            <a href="https://www.w3.org/TR/css-writing-modes-3/#block-flow-direction">block
+          flow direction</a> of the scroller.
+        </p>
+        <p>
+          It then queues an adjustment to the scroll position
           of <code>y1 - y0</code>, in the block flow direction, to be performed at the end of the
           <a>suppression window</a>.
         </p>
@@ -234,6 +243,10 @@
             </li>
           </ul>
         </p>
+        <div class="note">
+          Suppression triggers exist for compatibility with existing web content that has negative
+          interactions with scroll anchoring due to shifting content in scroll event handlers.
+        </div>
       </section>
     </section>
     <section>
