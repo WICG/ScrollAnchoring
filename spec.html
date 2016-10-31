@@ -9,7 +9,7 @@
       var respecConfig = {
           specStatus: "CG-DRAFT",
           shortName: "scrollAnchoring",
-          edDraftURI: "https://cdn.rawgit.com/skobes/ScrollAnchoring/master/spec.html",
+          edDraftURI: "https://rawgit.com/skobes/ScrollAnchoring/master/spec.html",
           editors: [
                 {   name:       "Steve Kobes",
                     url:        "",
@@ -38,8 +38,9 @@
   <body>
     <section id='abstract'>
       <p>
-        Changes in DOM elements above the visible region of a scroller can result
-        in the page moving while the user is in the middle of consuming the content.
+        Changes in DOM elements above the visible region of a
+        <a href="https://drafts.csswg.org/cssom-view/#scrolling-box">scrolling box</a>
+        can result in the page moving while the user is in the middle of consuming the content.
       </p>
       <p>
         This spec proposes a mechanism to mitigate this jarring user experience by
@@ -74,101 +75,105 @@
       <h2>Description</h2>
       <p>
         Scroll anchoring works by selecting a DOM node (the <dfn>anchor node</dfn>) whose
-        movement is used to determine the adjustment to the scroll position.
+        movement is used to determine adjustments to the scroll position.
       </p>
       <section>
         <h3>Anchor Node Selection</h3>
         <p>
-          The user agent aims to select an anchor node that is deep in the DOM and close to the top
-          edge of the <a id="ref-for-viewport-1">viewport</a>. This maximizes the amount of offscreen content whose
-          changes the user agent will successfully compensate for, while avoiding undesired scrolling
-          when important content loads within the viewport (for example, upon clicking a
-          "Read More" link).
+          Each <a href="https://drafts.csswg.org/cssom-view/#scrolling-box">scrolling box</a>
+          aims to select an anchor node that is deep in the DOM and close to the
+          block start edge of its <a href="https://www.w3.org/TR/css3-box/#content">content area</a>.
         </p>
         <p>
-          The anchor node may be either a text node or an element.
+          The anchor node is either a non-anonymous
+          <a href="https://www.w3.org/TR/css3-box/#block">block box</a>
+          or a <a href="https://www.w3.org/TR/dom/#text">text node</a>.
+          The anchor node is always a <a href="https://www.w3.org/TR/dom/#concept-tree-descendant">descendant</a>
+          of the <a href="https://drafts.csswg.org/cssom-view/#scrolling-box">scrolling box</a>.
+          In some cases, a scrolling box may not select any anchor node.
         </p>
         <p>
-          The <dfn id="anchoring-algorithm">algorithm to select an anchor node for a scrollable area </dfn>(either a
-          document or an element with scrollable overflow) is as follows:
+          The <dfn id="anchoring-algorithm">anchor node selection algorithm</dfn> for a scrolling box S
+          is as follows:
           <ol>
             <li>
-              If the scrollable area is created by an element whose computed value of the
+              If S is associated with an element whose computed value of the
               <a href="#overflow-anchor">overflow-anchor</a> property is
-              <a href="#overflow-anchor-none">none</a>, then do not select an anchor node.
+              <a href="#overflow-anchor-none">none</a>, then do not select an anchor node for S.
             </li>
             <li>
-              Otherwise, walk the DOM within the
-              <a href="https://drafts.csswg.org/cssom-view/#scrolling-box">scrollable area</a>.
-            </li>
-            <li>
-              For each element E encountered by the walk
-              <ol>
+              Otherwise, perform a pre-order depth-first traversal of the DOM subtree rooted at
+              S, starting at its first child. For each node N encountered by this traversal:
+              <ul>
                 <li>
-                  If E is an <a href="#unsuitable-anchor" id="ref-for-unsuitable-anchor-1">unsuitable anchor node</a>, skip over E and its descendents.
+                  If N is an <a>excluded subtree</a>, skip over N and its descendents.
                 </li>
                 <li>
-                  Otherwise, compare its bounds to the scrollable area's visible region.
-                  <ol>
-                    <li>If E is <a id="ref-for-fully-visible-1">fully visible</a>, terminate the walk and use E as the anchor node.</li>
-                    <li>If E is <a id="ref-for-fully-clipped-1">fully clipped</a>, skip over E and its descendents.</li>
-                    <li>
-                      If E is <a id="ref-for-partially-visible-1">partially visible</a>, mark it as a "candidate"
-                      and descend into its children. If the walk reaches the end of E without finding
-                      another anchor node, use E as the anchor node. (Deeper nodes are preferred
-                      in this case to avoid the failure mode of content being inserted
-                      inside the anchor node but outside the viewport.)
-                    </li>
-                  </ol>
+                  If N is <a id="ref-for-fully-visible-1">fully visible</a> in S,
+                  terminate the traversal and use N as the anchor node.
                 </li>
-              </ol>
+                <li>
+                  If N is <a id="ref-for-fully-clipped-1">fully clipped</a> in S,
+                  skip over E and its descendents.
+                </li>
+                <li>
+                  If N is <a id="ref-for-partially-visible-1">partially visible</a>, continue
+                  the traversal by descending to the children of N, but if the traversal reaches
+                  the last descendant of N without selecting an anchor node, then terminate the
+                  traversal and select N as the anchor node.
+                  <div class="note">
+                    Deeper nodes are preferred to minimize the possibility of content changing
+                    inside the anchor node but outside the viewport, which would cause visible
+                    content to shift without triggering any scroll anchoring adjustment.
+                  </div>
+                </li>
+              </ul>
             </li>
           </ol>
         </p>
         <p>
-          Conceptually, a new anchor node is computed for every scrollable area whenever the scroll position of
-          any scrollable area changes. (As a performance optimization, the implementation may wait until the
+          Conceptually, a new anchor node is computed for every scrolling box whenever the scroll position of
+          any scrolling box changes. (As a performance optimization, the implementation may wait until the
           anchor node is needed before computing it.)
         </p>
         <p>
-          The <dfn id="viewport"> viewport</dfn> is the visible region of the <a href="https://drafts.csswg.org/cssom-view/#scrolling-box">scrollable area</a>.
-        </p>
-        <p>
-          A DOM element E it an <dfn id="unsuitable-anchor">unsuitable anchor node</dfn> if any of the following conditions
+          A DOM node N is an <dfn id="excluded-subtree">excluded subtree</dfn> if it is an element and any of the following conditions
           holds:
           <ul>
             <li>
-              E's computed value of the <a href="https://drafts.csswg.org/css-position-3/#propdef-position">position</a> property is <a href="https://drafts.csswg.org/css-position-3/#valdef-position-fixed">fixed</a>.
+              N's computed value of the <a href="https://www.w3.org/TR/css-display-3/#propdef-display">display</a> property is <a href="https://www.w3.org/TR/css-display-3/#valdef-display-none">none</a>.
             </li>
             <li>
-              E's computed value of the <a href="https://drafts.csswg.org/css-position-3/#propdef-position">position</a> property is <a href="https://drafts.csswg.org/css-position-3/#valdef-position-absolute">absolute</a> and E's
+              N's computed value of the <a href="https://drafts.csswg.org/css-position-3/#propdef-position">position</a> property is <a href="https://drafts.csswg.org/css-position-3/#valdef-position-fixed">fixed</a>.
+            </li>
+            <li>
+              N's computed value of the <a href="https://drafts.csswg.org/css-position-3/#propdef-position">position</a> property is <a href="https://drafts.csswg.org/css-position-3/#valdef-position-absolute">absolute</a> and N's
               <a href="https://drafts.csswg.org/css-display-3/#containing-block">containing block</a>
-              is an ancestor of the scrollable area.
+              is an ancestor of the scrolling box.
             </li>
             <li>
-              E's computed value of the <a href="#overflow-anchor">overflow-anchor</a>
+              N's computed value of the <a href="#overflow-anchor">overflow-anchor</a>
               property is <a href="#overflow-anchor-none">none</a>.
             </li>
           </ul>
         </p>
         <p>
-          A DOM element E is <dfn id="fully-visible">fully visible</dfn> if its
-          <a>scroll anchoring bounding rect</a> is entirely
-          within the <a id="ref-for-viewport-2">viewport</a>.
+          A DOM node N is <dfn id="fully-visible">fully visible</dfn> in a scrolling box S if its
+          <a>scroll anchoring bounding rect</a> is entirely within the <a href="https://www.w3.org/TR/css3-box/#content">content area</a> of S.
         </p>
         <p>
-          A DOM element E is <dfn id="fully-clipped">fully clipped</dfn> if its
-          <a>scroll anchoring bounding rect</a> is entirely
-          outside the <a id="ref-for-viewport-3">viewport</a>.
+          A DOM node N is <dfn id="fully-clipped">fully clipped</dfn> in a scrolling box S if its
+          <a>scroll anchoring bounding rect</a> is entirely outside the <a href="https://www.w3.org/TR/css3-box/#content">content area</a> of S.
         </p>
         <p>
-          A DOM element E is <dfn id="partially-visible">partially visible </dfn> if it
-          is neither fully visible nor fully clipped.
+          A DOM node N is <dfn id="partially-visible">partially visible</dfn> in a scrolling box S if it
+          is neither fully visible in S nor fully clipped in S.
         </p>
         <p>
-          The <dfn id="scroll-anchoring-bounding-rect">scroll anchoring bounding rect</dfn> of an element
-          E is the axis-aligned bounding rect of the element's border box and its
-          <a href="https://www.w3.org/TR/css-overflow-3/#ink-overflow-rectangle">ink overflow rectangle</a>.
+          The <dfn id="scroll-anchoring-bounding-rect">scroll anchoring bounding rect</dfn> of a DOM node N
+          is its <a href="https://www.w3.org/TR/css-overflow-3/#scrollable-overflow-rectangle">scrollable overflow rectangle</a>
+          if N is a <a href="https://www.w3.org/TR/css3-box/#block">block box</a>, or the bounding rect of its
+          <a href="https://www.w3.org/TR/css-text-3/#line-breaking">line boxes</a> if N is a text node.
         </p>
       </section>
       <section>
@@ -202,6 +207,10 @@
             <a href="https://www.w3.org/TR/cssom-view-1/#dom-element-getboundingclientrect">getBoundingClientRect</a>), whichever comes sooner.
             </li>
           </ul>
+          <div class="note">
+            The suppression window boundaries should be incorporated into the HTML standard once the
+            scroll anchoring API is stabilized.
+          </div>
           More than one anchor node movement may occur within the same suppression window.
         </p>
         <p>
@@ -261,33 +270,25 @@
       </p>
       <ul>
         <li>
-            <dfn><code>overflow-anchor: visible</code></dfn> declares that the DOM subtree
-            rooted at E is eligible to participate in the <a href="#anchoring-algorithm"
-            id="ref-for-anchoring-algorithm-1">anchor node selection algorithm</a>
-            for any scrollable area created by E or an ancestor of E.
+            <dfn><code>overflow-anchor: auto</code></dfn> (the default value) declares
+            that the DOM subtree rooted at E is eligible to participate in the
+            <a href="#anchoring-algorithm" id="ref-for-anchoring-algorithm-1">anchor
+            node selection algorithm</a> for any scrolling box created by E or an ancestor of E.
         </li>
         <li>
             <dfn id="overflow-anchor-none"><code>overflow-anchor: none</code></dfn>
             declares that the DOM subtree rooted at E is <em>not</em> eligible to
             participate in the <a href="#anchoring-algorithm"
             id="ref-for-anchoring-algorithm-1">anchor node selection algorithm</a>
-            for any scrollable area created by E or an ancestor of E.
-        </li>
-        <li>
-            <dfn><code>overflow-anchor: auto</code></dfn> invokes the user agent's default behavior for the
-            element. With the launch of scroll anchoring this will be equivalent
-            to <code>visible</code>, but is subject to future modification.
+            for any scrolling box created by E or an ancestor of E.
         </li>
       </ul>
-      <p class="issue">
-        The pairing of <code>visible</code> with <code>none</code> is awkward.
-        There may be better names for these values.
-      </p>
       <div class="note">
         The <code>overflow-anchor</code> property is also proposed (with different values) for
         <a href="http://tabatkins.github.io/specs/css-sticky-scrollbars/">CSS Sticky Scrollbars</a>.
         This feature is distinct from scroll anchoring, but shares the notion of
-        adjusting scroll position in response to content changes.
+        adjusting scroll position in response to content changes, so it makes sense to reuse the
+        property name.
       </div>
       <p>
         The <code>overflow-anchor</code> property is not inherited.

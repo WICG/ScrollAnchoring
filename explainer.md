@@ -22,7 +22,7 @@ follow the movement of visible page elements.
 
 ## Draft Spec
 
-[Draft spec](https://cdn.rawgit.com/skobes/ScrollAnchoring/master/spec.html)
+[Draft spec](https://rawgit.com/skobes/ScrollAnchoring/master/spec.html)
 
 ## Design
 
@@ -139,17 +139,13 @@ In particular, developers should be able to use CSS
 We propose a CSS property `overflow-anchor` whose values have the following
 meaning for some element E:
 
-* `overflow-anchor: visible` declares that the DOM subtree rooted at E is
+* `overflow-anchor: auto` declares that the DOM subtree rooted at E is
   eligible to participate in the anchor node selection algorithm for any
-  scrollable area created by E or an ancestor of E.
+  scrollable area created by E or an ancestor of E.  This is the default.
 
 * `overflow-anchor: none` declares that the DOM subtree rooted at E should be
   skipped by the anchor node selection algorithm for any scrollable area created
   by E or an ancestor of E.
-
-* `overflow-anchor: auto` invokes the user agent's default behavior.  With the
-  launch of scroll anchoring this will be equivalent to `visible`, but is
-  subject to future modification.
 
 Note the following implications of the above semantics:
 
