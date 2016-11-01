@@ -1,4 +1,4 @@
 # Scroll Anchoring
 
 * [Explainer](explainer.md)
-* [Draft spec](https://skobes.github.io/ScrollAnchoring/spec.html)
+* [Draft spec](https://skobes.github.io/ScrollAnchoring)

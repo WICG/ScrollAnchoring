@@ -22,7 +22,7 @@ follow the movement of visible page elements.
 
 ## Draft Spec
 
-[Draft spec](https://skobes.github.io/ScrollAnchoring/spec.html)
+[Draft spec](https://skobes.github.io/ScrollAnchoring)
 
 ## Design
 
