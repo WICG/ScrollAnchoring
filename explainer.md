@@ -160,10 +160,11 @@ Note the following implications of the above semantics:
   document-level scrollable area will not perform any scroll anchoring
   adjustments.
 
-The `overflow-anchor` property is also proposed (with different values) for
-[CSS Sticky Scrollbars](http://tabatkins.github.io/specs/css-sticky-scrollbars/).
-This feature is distinct from scroll anchoring, but shares the notion of
-adjusting scroll position in response to content changes.
+The `overflow-anchor` property was also proposed (with different values) for
+[CSS Sticky Scrollbars](http://tabatkins.github.io/specs/css-sticky-scrollbars/),
+which was a different feature that shared the notion of adjusting scroll position
+in response to content changes.  However, Sticky Scrollbars has now been
+[superseded](https://tabatkins.github.io/specs/css-sticky-scrollbars/#intro).
 
 The `overflow-anchor` property is not inherited (but the effect of skipping a
 subtree in the anchor node selection algorithm bears a resemblance to property
