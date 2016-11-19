@@ -20,9 +20,18 @@ third-party content, and few websites do it consistently.
 Scroll anchoring aims to minimize surprising content shifts by scrolling to
 follow the movement of visible page elements.
 
-## Draft Spec
 
-[Draft spec](https://skobes.github.io/ScrollAnchoring)
+## Implementation Status
+
+Scroll anchoring is now [enabled by default in Chrome 56](https://www.chromestatus.com/feature/5700102471548928).  Earlier versions of Chrome had a prototype that can be enabled from the "about:flags" page.  The implementation is tracked in
+[Issue 558575](http://crbug.com/558575) and its dependencies.
+
+Mozilla has discussed a similar feature in
+[Bug 43114](https://bugzilla.mozilla.org/show_bug.cgi?id=43114).
+
+## Standardization
+
+We have a [draft spec](https://skobes.github.io/ScrollAnchoring), and have [proposed](https://discourse.wicg.io/t/proposal-scroll-anchoring/1752) continuing incubation of the design via the WICG (tracked by WICG/Interventions#2).  The draft specification has been [reviewed by the W3C Tag](https://github.com/w3ctag/spec-reviews/issues/142) and we hope that [the CSSWG will ultimately adopt the proposal](https://github.com/w3c/csswg-drafts/issues/676) for formal standardization.
 
 ## Design
 
@@ -189,12 +198,3 @@ and also avoid visible jumps during page load.
 One way to solve this is for the browsing history entry to store something
 analogous to a CSS selector for the scroll anchor node, instead of storing an
 absolute scroll offset.
-
-## Implementation Status
-
-A prototype of scroll anchoring is behind a flag in Google Chrome and can be
-enabled from the "about:flags" page.  The implementation is tracked in
-[Issue 558575](http://crbug.com/558575) and its dependencies.
-
-Mozilla has discussed a similar feature in
-[Bug 43114](https://bugzilla.mozilla.org/show_bug.cgi?id=43114).
