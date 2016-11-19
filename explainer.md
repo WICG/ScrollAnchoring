@@ -24,7 +24,7 @@ follow the movement of visible page elements.
 ## Implementation Status
 
 Scroll anchoring is now [enabled by default in Chrome 56](https://www.chromestatus.com/feature/5700102471548928).  Earlier versions of Chrome had a prototype that can be enabled from the "about:flags" page.  The implementation is tracked in
-[Issue 558575](http://crbug.com/558575) and its dependencies.
+[Issue 558575](http://crbug.com/558575) and its dependencies.  Several [videos](https://www.youtube.com/watch?v=xrVN7J_yIG8) and [test pages](https://twitter.com/simevidas/status/799510987460214785) have [been](https://www.youtube.com/watch?v=fejv0cM7Jig) published demonstrating the difference.
 
 Mozilla has discussed a similar feature in
 [Bug 43114](https://bugzilla.mozilla.org/show_bug.cgi?id=43114).
