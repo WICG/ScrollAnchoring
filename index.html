@@ -56,7 +56,7 @@
       <p>
         Standardizing this proposal is tracked by <a href="https://github.com/wicg/interventions/issues/2">a WICG interventions issue</a>.
       </p>
-    </section>      
+    </section>
 
     <section id="intro" class="informative">
       <h2>Introduction</h2>
@@ -211,6 +211,13 @@
           It then queues an adjustment to the scroll position
           of <code>y1 - y0</code>, in the block flow direction, to be performed at the end of the
           <a>suppression window</a>.
+        </p>
+        <p>
+          The scroll adjustment is a type of
+          <a href="https://www.w3.org/TR/cssom-view-1/#scrolling-events">scrolling</a> as defined by
+          CSSOM View Module, and generates
+          <a href="https://www.w3.org/TR/cssom-view-1/#eventdef-document-scroll">scroll events</a>
+          in the manner described there.
         </p>
         <h4>Suppression Window</h4>
         <p>
