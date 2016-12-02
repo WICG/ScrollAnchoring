@@ -31,7 +31,7 @@ Mozilla has discussed a similar feature in
 
 ## Standardization
 
-We have a [draft spec](https://skobes.github.io/ScrollAnchoring), and have [proposed](https://discourse.wicg.io/t/proposal-scroll-anchoring/1752) continuing incubation of the design via the WICG (tracked by [WICG/interventions#2](https://github.com/wicg/interventions/issues/2)).  The draft specification has been [reviewed by the W3C Tag](https://github.com/w3ctag/spec-reviews/issues/142) and we hope that [the CSSWG will ultimately adopt the proposal](https://github.com/w3c/csswg-drafts/issues/676) for formal standardization.
+We have a [draft spec](https://wicg.github.io/ScrollAnchoring), and have [proposed](https://discourse.wicg.io/t/proposal-scroll-anchoring/1752) continuing incubation of the design via the WICG (tracked by [WICG/interventions#2](https://github.com/wicg/interventions/issues/2)).  The draft specification has been [reviewed by the W3C Tag](https://github.com/w3ctag/spec-reviews/issues/142) and we hope that [the CSSWG will ultimately adopt the proposal](https://github.com/w3c/csswg-drafts/issues/676) for formal standardization.
 
 ## Design
 
