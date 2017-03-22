@@ -119,32 +119,43 @@
               <a href="#overflow-anchor-none">none</a>, then do not select an anchor node for S.
             </li>
             <li>
-              Otherwise, perform a pre-order depth-first traversal of the DOM subtree rooted at
-              S, starting at its first child. For each node N encountered by this traversal:
-              <ul>
+              Otherwise, for each DOM child N of the element or document associated with S, perform
+              the <a href="#candidate-examination">candidate examination algorithm</a> for N in S,
+              and terminate if it selects an anchor node.
+            </li>
+          </ol>
+          The <dfn id="candidate-examination">candidate examination algorithm</dfn> for a candidate
+          DOM node N in a scrolling box S is as follows:
+          <ol>
+            <li>
+              If N is an <a>excluded subtree</a>, or if N is <a id="ref-for-fully-clipped-1">fully
+              clipped</a> in S, then do nothing (N and its descendants are skipped).
+            </li>
+            <li>
+              If N is <a id="ref-for-fully-visible-1">fully visible</a> in S, select N as the anchor node.
+            </li>
+            <li>
+              If N is <a id="ref-for-partially-visible-1">partially visible</a>:
+              <ol type="a">
                 <li>
-                  If N is an <a>excluded subtree</a>, skip over N and its descendents.
+                  For each DOM child C of N, perform the <a href="#candidate-examination">candidate
+                  examination algorithm</a> for C in S, and terminate if it selects an anchor node.
                 </li>
                 <li>
-                  If N is <a id="ref-for-fully-visible-1">fully visible</a> in S,
-                  terminate the traversal and use N as the anchor node.
+                  For each <a href="https://drafts.csswg.org/css-position-3/#valdef-position-absolute">absolute-positioned</a> element A whose <a href="https://drafts.csswg.org/css-display-3/#containing-block">containing block</a> is N, but whose
+                  DOM parent is not N, perform the <a href="#candidate-examination">candidate
+                  examination algorithm</a> for A in S, and terminate if it selects an anchor node.
                 </li>
                 <li>
-                  If N is <a id="ref-for-fully-clipped-1">fully clipped</a> in S,
-                  skip over N and its descendents.
+                  Select N as the anchor node. (If this step is reached, no suitable anchor node was
+                  found among N's descendants.)
                 </li>
-                <li>
-                  If N is <a id="ref-for-partially-visible-1">partially visible</a>, continue
-                  the traversal by descending to the children of N, but if the traversal reaches
-                  the last descendant of N without selecting an anchor node, then terminate the
-                  traversal and select N as the anchor node.
-                  <div class="note">
-                    Deeper nodes are preferred to minimize the possibility of content changing
-                    inside the anchor node but outside the viewport, which would cause visible
-                    content to shift without triggering any scroll anchoring adjustment.
-                  </div>
-                </li>
-              </ul>
+              </ol>
+              <div class="note">
+                Deeper nodes are preferred to minimize the possibility of content changing
+                inside the anchor node but outside the viewport, which would cause visible
+                content to shift without triggering any scroll anchoring adjustment.
+              </div>
             </li>
           </ol>
         </p>
