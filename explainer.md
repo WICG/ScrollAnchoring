@@ -88,6 +88,10 @@ document or an element with scrollable overflow) is as follows:
           nodes in this case to avoid the failure mode of content being inserted
           inside the anchor node but outside the viewport.)
 
+    - If E is a containing block for absolute-positioned descendants, and all of
+      its direct DOM children were skipped, examine those descendants before
+      exiting E.
+
 ## SANACLAP
 
 Initial testing revealed that scroll anchoring often performed undesired scroll
