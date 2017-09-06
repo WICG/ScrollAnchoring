@@ -1,5 +1,7 @@
 # Scroll Anchoring
 
+**Note, Scroll Anchoring is now a CSSWG specification: <https://drafts.csswg.org/css-scroll-anchoring>**
+
 Scroll anchoring is an
 [intervention](https://github.com/WICG/interventions)
 that adjusts the scroll position to reduce visible content "jumps".
